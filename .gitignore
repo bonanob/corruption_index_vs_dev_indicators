@@ -5,5 +5,4 @@ venv
 .pytest_cache
 .idea
 presentation
-data
-misc
+WDIData.csv
