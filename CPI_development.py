@@ -119,8 +119,8 @@ print(df_cpi[df_cpi['CPI score'].isnull()].isnull().sum())
 fig = px.line(df_cpi, x=df_cpi.index.get_level_values('Year'), y='CPI score', 
               facet_col=df_cpi.index.get_level_values('Country'), 
               facet_col_wrap=6,
-              facet_row_spacing=0.005, # default is 0.07 when facet_col_wrap is used
-              facet_col_spacing=0.04, # default is 0.03
+              facet_row_spacing=0.005, 
+              facet_col_spacing=0.04, 
               height=4000, 
               # width=1000,
               title="<b>CPI Score Trends by Country</b>",
@@ -266,16 +266,11 @@ print("dff shape:", dff.shape)
 
 #%%
 
-# XXX: Drop nan's
+# Drop nan's
 
 dff.dropna(inplace=True)
 
 print("dff shape:", dff.shape)
-
-#%%
-
-# XXX: Fill nan's with median
-# dff.fillna(dff.median(), inplace=True)
 
 #%%
 
@@ -301,6 +296,7 @@ print(calc_vif(dff))
 
 #%%
 
+# Variables were taken out one by one. Here I just simplified the process
 dff.drop(dff.iloc[:, 5:11], axis=1, inplace=True)
 
 print(calc_vif(dff))
@@ -366,14 +362,14 @@ fig.show()
 print(residuals.mean())
 
 
-# TIP: 5. Performing the test on the residuals for NORMALITY 
+# 5. Performing the test on the residuals for NORMALITY 
 p_value = normal_ad(residuals)[1]
 print('p-value from the test Anderson-Darling test below 0.05 generally means non-normal:', p_value)
 
 shapiro = stats.shapiro(residuals)
 print(shapiro)
 
-# <<<<<<< NOT PASSED >>>>>>>>
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<< NOT PASSED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 # TIP: I'll try Random forest instead of Linear regression
 
@@ -386,7 +382,7 @@ print(shapiro)
 ##################
 
 
-# Drop nan's directly from dff to preserve more variables.
+# Drop nan's directly from df to preserve more variables.
 
 dff = df.dropna()
 dff.drop(columns=['Sources', 'Standard error'], inplace=True)
@@ -418,7 +414,6 @@ X = dff.iloc[:, 1:]
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2)
 
 #%%
-# instantiate the classifier with n_estimators = 100
 model = RandomForestClassifier(n_estimators = 100, max_depth = 100, random_state = 101)
 
 # fit the model to the training set
@@ -500,8 +495,7 @@ rf_tester(0.0147, t=100)
 
 ##############################
 
-
-# Variables used:
+# Variables used(Please refer to the WARNING in the cell above):
 vars_used = ['CPI score', 'GDP per capita (constant 2015 US$)',
        'Unemployment, total (% of total labor force) (modeled ILO estimate)',
        'Domestic credit to private sector by banks (% of GDP)',
@@ -523,63 +517,7 @@ dfsf_100 = normalize_by_first(dfsf, dfsf.columns)
 
 #%%
 
-# Countries with over 20% change in CPI score
-p20_change_iso3 = dfsf_100[(dfsf_100['CPI score'] > 1.2) | (dfsf_100['CPI score'] < 0.8)].index.get_level_values('ISO3').drop_duplicates()
-dfsf_p30 = dfsf_100.loc[dfsf_100.index.get_level_values('ISO3').isin(p20_change_iso3)]
-
-df_facet = dfsf_p30.index.get_level_values('Country')
-
-# CPI score trends of each country
-fig = px.line(dfsf_p30, x=dfsf_p30.index.get_level_values('Year'), 
-              y=dfsf_p30.columns, 
-              facet_col=df_facet,
-              facet_col_wrap=6,
-              # facet_row_spacing=0.005, # default is 0.07 when facet_col_wrap is used
-              # facet_col_spacing=0.04, # default is 0.03
-              # height=4000, 
-              # width=1000,
-              title="<b>CPI Score Trends by Country</b>",
-              labels={
-                  'x': 'Years'
-                  }
-              )
-fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-fig.update_yaxes(showticklabels=True)
-fig.update_layout(
-    title_font_size=26,
-)
-fig.show()
-
-#%%
-
-# CPI score trends of each country
-fig = px.line(dfsf, x=dfsf.index.get_level_values('Year'), 
-              y=dfsf.columns[:-2], 
-              facet_col=dfsf.index.get_level_values('Country'),
-              facet_col_wrap=6,
-               facet_row_spacing=0.005, # default is 0.07 when facet_col_wrap is used
-               facet_col_spacing=0.04, # default is 0.03
-               height=4000, 
-              # width=1000,
-              title="<b>CPI Score Trends by Country</b>",
-              labels={
-                  'x': 'Years'
-                  }
-              )
-fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-fig.update_yaxes(showticklabels=True)
-fig.update_layout(
-    title_font_size=26,
-)
-fig.show()
-
-
-#%%
-
-
-
 # Top 10, Worst 10 CPI scores by Countries (2020)
-
 top10 = dfsf[dfsf.index.get_level_values('Year')==2020].sort_values(by=['CPI score'], ascending=False).iloc[:10]
 print(top10)
 worst10 = dfsf[dfsf.index.get_level_values('Year')==2020].sort_values(by=['CPI score']).iloc[:10]
@@ -587,76 +525,129 @@ print(worst10)
 
 # Improved, declined since 2019
 diff_2019_2020 = dfsf[dfsf.index.get_level_values('Year')==2020]['CPI score'].values-dfsf[dfsf.index.get_level_values('Year')==2019]['CPI score'].values
-print('# of improved countries:', sum(diff_2019_2020>0))
+print('\n# of improved countries:', sum(diff_2019_2020>0))
 print('Magnitude:', diff_2019_2020[diff_2019_2020>0].sum())
 print('\n# of declined countries:', sum(diff_2019_2020<0))
 print('Magnitude:', diff_2019_2020[diff_2019_2020<0].sum())
 
+#%%
+
+# CPI score vs GDP per capita, Domestic credit to private sector by banks
+fig = px.scatter(dfsf, x='GDP per capita (constant 2015 US$)', y='CPI score',
+           color='Domestic credit to private sector by banks (% of GDP)',
+           hover_data=[dfsf.index.get_level_values('Country')])
+fig.update_layout(
+    title_font_size=26,
+)
+fig.show()
+
+#%%
+
+# CPI score vs 
+# Population density (people per sq. km of land area)
+# Price level ratio of PPP conversion factor (GDP) to market exchange rate
+
+fig = px.scatter(dfsf, x='Population density (people per sq. km of land area)', y='CPI score',
+           color='Price level ratio of PPP conversion factor (GDP) to market exchange rate',
+           hover_data=[dfsf.index.get_level_values('Country')])
+fig.update_layout(
+    title_font_size=26,
+)
+fig.show()
+
+#%%
+
+# CPI score vs 
+# Consumer price index (2010 = 100)
+# GDP deflator (base year varies by country)
+
+# Handling outlier
+dfsf_fig = dfsf[dfsf['GDP deflator (base year varies by country)']<400]
+
+fig = px.scatter(dfsf_fig, x='Consumer price index (2010 = 100)', y='CPI score',
+           color='GDP deflator (base year varies by country)',
+           hover_data=[dfsf_fig.index.get_level_values('Country')])
+fig.update_layout(
+    title_font_size=26,
+)
+fig.show()
+
+#%%
+
+# CPI score vs 
+# Refugee population by country or territory of origin'
+
+fig = px.scatter(dfsf, x='Refugee population by country or territory of origin', y='CPI score',
+           hover_data=[dfsf.index.get_level_values('Country')])
+fig.update_layout(
+    title_font_size=26,
+)
+fig.show()
+
+#%%
+
+# CPI score vs 
+# Net secondary income (Net current transfers from abroad) (current US$) 
+# Unemployment, total (% of total labor force) (modeled ILO estimate)
 
 
+fig = px.scatter(dfsf, x='Net secondary income (Net current transfers from abroad) (current US$)', y='CPI score',
+           color='Unemployment, total (% of total labor force) (modeled ILO estimate)',
+           hover_data=[dfsf.index.get_level_values('Country')])
+fig.update_layout(
+    title_font_size=26,
+)
+fig.show()
 
+#%%
 
-# range By Region
+# Countries with over 20% change in CPI score
+p20_change_iso3 = dfsf_100[(dfsf_100['CPI score'] > 1.2) | (dfsf_100['CPI score'] < 0.8)].index.get_level_values('ISO3').drop_duplicates()
+dfsf_p20 = dfsf_100.loc[dfsf_100.index.get_level_values('ISO3').isin(p20_change_iso3)]
+
+#%%
+
+# Trends of p20 countries to play with legends
+fig = px.line(dfsf_p20, x=dfsf_p20.index.get_level_values('Year'), 
+              y=dfsf_p20.columns, 
+              facet_col=dfsf_p20.index.get_level_values('Country'), 
+              facet_col_wrap=6,
+              facet_row_spacing=0.02, 
+              height=1500, 
+              # width=1000,
+              title="<b>Trends of p20 countries (to play with legends)</b>",
+              labels={
+                  'x': 'Years'
+                  }
+              )
+fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+fig.update_yaxes(showticklabels=True)
+fig.update_layout(
+    title_font_size=26,
+)
+fig.show()
+
+#%%
+
+# Trends by Region
+
 dfsf['Region']=df['Region']
 df_eu=dfsf[dfsf['Region']=='WE/EU'].groupby('Year').mean()
 
-# fig = px.line(df_eu, x=df_eu.index.get_level_values('Year'), 
-#               y=df_eu.columns, 
-#               # facet_col=df_eu.index.get_level_values('Country'),
-#               # facet_col_wrap=6,
-#                # facet_row_spacing=0.005, # default is 0.07 when facet_col_wrap is used
-#                # facet_col_spacing=0.04, # default is 0.03
-#                # height=4000, 
-#               # width=1000,
-#               title="<b>CPI Score Trends by Country</b>",
-#               labels={
-#                   'x': 'Years'
-#                   }
-#               )
-# fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-# fig.update_yaxes(showticklabels=True)
-# fig.update_layout(
-#     title_font_size=26,
-# )
-# fig.show()
-
-
-
-
-
-
-
-
-
-fig = make_subplots(rows=1, cols=3)
-
-for idx, val in enumerate(df_eu.columns):
-    print(int(np.ceil(idx/3)))
-          
-          
-    # fig.add_trace(
-    #     go.Scatter(x=df_eu.index.get_level_values('Year'), y=df_eu[val], mode='lines'),
-    #     row=1, col=int(np.ceil(idx/3))
-    # )
-
-# fig.update_layout(title_text="Side By Side Subplots")
-# fig.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for region in dfsf['Region'].unique():
+    fig = make_subplots(rows=4, cols=3)
+    
+    for idx, val in enumerate(df_eu.columns):
+        fig.add_trace(
+            go.Scatter(x=df_eu.index.get_level_values('Year'), 
+                       y=df_eu[val], 
+                       mode='lines', 
+                       name=df_eu[val].name),
+            row=int(np.ceil((idx+1)/3)), col=(idx%3)+1
+        )
+    
+    fig.update_layout(title_text="Trends in {}".format(region))
+    fig.show()
 
 # Thanks you for everything!
 
