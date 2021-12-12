@@ -24,15 +24,11 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.diagnostic import normal_ad
 from scipy import stats
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-
 
 #%%
 
 # CPI Time Series excel to dataframe
-df1= pd.read_excel("CPI2020_GlobalTablesTS_210125.xlsx", sheet_name='CPI Timeseries 2012 - 2020', header=2)
+df1= pd.read_excel("./data/CPI2020_GlobalTablesTS_210125.xlsx", sheet_name='CPI Timeseries 2012 - 2020', header=2)
 
 #%%
 
@@ -45,7 +41,7 @@ df_cpi.rename(columns={'CPI score ': 'CPI score', 'Rank ': 'Rank', 'Sources ':'S
 #%%
 
 # World Development Index 
-df2 = pd.read_csv("WDIData.csv")
+df2 = pd.read_csv("./data/WDIData.csv")
 
 # drop from 1960 to 2011 > df_cpi starts from 2012
 df2.drop(df2.loc[:, '1960':'2011'].columns, inplace=True, axis = 1)
@@ -653,6 +649,6 @@ for region in dfsf['Region'].unique():
     fig.update_layout(title_text="Trends in {}".format(region))
     fig.show()
 
-
+# Thanks you for everything!
 
 
