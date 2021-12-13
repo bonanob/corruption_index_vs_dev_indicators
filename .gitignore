@@ -1,6 +1,8 @@
-
-/data
-misc
+env
+.vscode
+/__pycache__
 .DS_Store
+.pytest_cache
+.idea
 ./~$stract.docx
-
+data
